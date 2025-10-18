@@ -3,7 +3,7 @@ CFG -> IC
 GF -> GG
 IC -> JI
 AD -> BD 
-EFI -> HGH
+FFI -> HGH
 FHDQ -> FHEDQ
 HA -> JH
 HE -> HDD 
