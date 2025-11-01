@@ -2,4 +2,7 @@
 
 Вариант 12
 
-\*\*((aa|bb)\*(ab|ba)(aa|bb)\*(ab|ba))\*\*\(ab|\(bc|cb\)\(bb\)\*\(cb|bc\)\)\*
+```
+((aa|bb)*(ab|ba)(aa|bb)*(ab|ba))*(ab|(bc|cb)(bb)*(cb|bc))*
+```
+
