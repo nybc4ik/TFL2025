@@ -6,3 +6,4 @@
 ((aa|bb)*(ab|ba)(aa|bb)*(ab|ba))*(ab|(bc|cb)(bb)*(cb|bc))*
 ```
 
+![ДКА](Автомат.jpg)
