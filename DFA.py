@@ -4,23 +4,32 @@ from graphviz import Digraph
 ((aa|bb)*(ab|ba)(aa|bb)*(ab|ba))*(ab|(bc|cb)(bb)*(cb|bc))*
 '''
 dfa = {
-    'q0': {'a': 'q1', 'b': 'q4', 'c': 'q10'}, 
-    'q1': {'a': 'q2', 'b': 'q3'},
-    'q2': {'a': 'q1', 'b': 'q4'},
-    'q3': {'a': 'q6', 'b': 'q8', 'c': 'q10'}, 
-    'q4': {'a': 'q3', 'b': 'q5', 'c': 'q11'},
-    'q5': {'a': 'q1', 'b': 'q4'},
-    'q6': {'a': 'q7', 'b': 'q0'},
-    'q7': {'a': 'q6', 'b': 'q8'},
-    'q8': {'a': 'q0', 'b': 'q9'},
-    'q9': {'a': 'q6', 'b': 'q8'},
-    'q10': {'b': 'q11'},
-    'q11': {'b': 'q12', 'c': 'q13'},
-    'q12': {'b': 'q11', 'c': 'q0'}, 
-    'q13': {'b': 'q0'}
+    'q0': {'a': 'q1', 'b': 'q12', 'c': 'q15'}, 
+    'q1': {'a': 'q2', 'b': 'q11'},
+    'q2': {'a': 'q3', 'b': 'q4'}, 
+    'q3': {'a': 'q2', 'b': 'q5'},
+    'q4': {'a': 'q5', 'b': 'q2'},
+    'q5': {'a': 'q6', 'b': 'q7'},
+    'q6': {'a': 'q8', 'b': 'q10'},
+    'q7': {'a': 'q10', 'b': 'q9'},
+    'q8': {'a': 'q6', 'b': 'q7'},
+    'q9': {'a': 'q6', 'b': 'q7'},
+    'q10': {'a': 'q1', 'b': 'q12', 'c': 'q15'},
+    'q11': {'a': 'q14', 'b': 'q12', 'c': 'q15'},
+    'q12': {'a': 'q5', 'b': 'q13', 'c': 'q16'},
+    'q13': {'a': 'q3', 'b': 'q17'},
+    'q14': {'a': 'q5', 'b': 'q10'},
+    'q15': {'b': 'q16'},
+    'q16': {'b': 'q18', 'c': 'q19'},
+    'q17': {'b': 'q13'},
+    'q18': {'b': 'q16', 'c': 'q20'},
+    'q19': {'b': 'q20'},
+    'q20': {'a': 'q21','b': 'q22', 'c': 'q15'}, 
+    'q21': {'b': 'q20'},
+    'q22': {'c': 'q16'}
 }
 start_state = 'q0'
-final_states = {'q0', 'q3'}
+final_states = {'q0', 'q10', 'q11', 'q20'}
 
 
 def check_dfa(dfa, word, start_state, final_states):
@@ -35,7 +44,7 @@ def check_dfa(dfa, word, start_state, final_states):
 
 def visualize_dfa(dfa, start_state, final_states):
     dot = Digraph()
-    dot.attr(rankdir='LR', size='8,5')
+    dot.attr(rankdir='LR', size='10,0')
 
     for state in dfa:
         if state in final_states:
@@ -57,7 +66,8 @@ def tests():
     test_words = [
         ("aabbb", False),
         ("abb", False),
-        ("aababbab", True)
+        ("aababbab", True),
+        ("bcbbcbababbccb", True)
     ]
 
     for word, expected in test_words:
@@ -70,6 +80,6 @@ def tests():
 
 tests()
 dot = visualize_dfa(dfa, start_state, final_states)
-dot.render('dfa_visualization', format='png', cleanup=True)
+dot.render('dfa_visualization', format='svg', cleanup=True)
 print("Файл 'dfa_visualization.png'")
 
