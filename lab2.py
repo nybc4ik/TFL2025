@@ -5,7 +5,7 @@ from graphviz import Digraph
 
 # Блок с регулярным выражением
 def generate_random_word(alphabet):
-    word  = ''   
+    word = ''   
     length = random.randint(0, 100)
     for i in range(length):
         word += random.choice(alphabet)
@@ -40,11 +40,10 @@ def visualize_automaton(automaton, start_state, final_states, automaton_type):
     filename = f"{automaton_type}_visualization"
     dot.render(filename, format='svg', cleanup=True)
     print(filename + ".svg")
-    return dot
 
 
 # Блок с DFA (отрисовка генерация проверка)
-def check_dfa(word, visualize=False):
+def check_dfa(word, visualize=True):
     dfa = {
         'q0': {'a': 'q1', 'b': 'q2', 'c': 'q9'},
         'q1': {'a': 'q4', 'b': 'q3'},
@@ -92,20 +91,21 @@ def get_epsilon_closure(nfa, states):
                     stack.append(next_state)
     return closure
 
-def check_nfa(word, visualize=False):
+def check_nfa(word, visualize=True):
     nfa = {
     'q0': {'ε': {'q1', 'q7'}},
     'q1': {'a': 'q2', 'b': 'q4'},
     'q2': {'a': 'q1', 'b': 'q3'},
     'q4': {'a': 'q3', 'b': 'q1'},
-    'q3': {'a': 'q5', 'b': {'q6'}},
+    'q3': {'a': 'q5', 'b': 'q6'},
     'q5': {'a': 'q3', 'b': 'q0'},
     'q6': {'a': 'q0', 'b': 'q3'},
     'q7': {'a': 'q8', 'b': 'q9', 'c': 'q11'},
     'q8': {'b': 'q7'},
     'q9': {'c': 'q10'},
-    'q10': {'b': 'q11', 'c': 'q8'},
-    'q11': {'b': 'q10', 'c': 'q7'}  
+    'q10': {'b': {'q11', 'q12'}, 'c': 'q8'},
+    'q11': {'b': 'q10'},
+    'q12': {'c': 'q7'}
     }
     nfa_start_state = 'q0'
     nfa_final_states = {'q7'}
@@ -143,7 +143,7 @@ def test_equivalence(regex, alphabet, num_tests=100):
             print("Ошибка в слове:", word)
             print("Регулярка:", regex_result, "DFA:", dfa_result, "NFA:", nfa_result)
             failed_words.append(word)   
-    if failed_words == [] :
+    if failed_words == []:
         return True
     else:
         return failed_words 
