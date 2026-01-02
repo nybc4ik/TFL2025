@@ -16,12 +16,12 @@ def check_regex(regex, word):
     return bool(re.fullmatch(regex, word))
 
 
-# Блок с DFA (отрисовка генерация проверка)
-def visualize_dfa(dfa, start_state, final_states):
+# Блок с отрисовкой автомата
+def visualize_automaton(automaton, start_state, final_states, automaton_type):
     dot = Digraph()
     dot.attr(rankdir='LR', size='10,0')
 
-    for state in dfa:
+    for state in automaton:
         if state in final_states:
             dot.node(state, shape='doublecircle')
         else:
@@ -30,13 +30,20 @@ def visualize_dfa(dfa, start_state, final_states):
     dot.node('start', shape='none', label='')
     dot.edge('start', start_state)
 
-    for state, transitions in dfa.items():
-        for symbol, next_state in transitions.items():
-            dot.edge(state, next_state, label=symbol)
+    for state, transitions in automaton.items():
+        for symbol, next_states in transitions.items():
+            if isinstance(next_states, str):
+                next_states = {next_states}
+            for next_state in next_states:
+                dot.edge(state, next_state, label=symbol)
 
+    filename = f"{automaton_type}_visualization"
+    dot.render(filename, format='svg', cleanup=True)
+    print(filename + ".svg")
     return dot
 
 
+# Блок с DFA (отрисовка генерация проверка)
 def check_dfa(word, visualize=False):
     dfa = {
         'q0': {'a': 'q1', 'b': 'q2', 'c': 'q9'},
@@ -61,9 +68,7 @@ def check_dfa(word, visualize=False):
     final_states = {'q0', 'q3', 'q15'}
 
     if visualize:
-        dot = visualize_dfa(dfa, start_state, final_states)
-        dot.render('dfa_visualization', format='svg', cleanup=True)
-        print("Файл 'dfa_visualization.svg'")
+        visualize_automaton(dfa, start_state, final_states, "DFA") 
 
     current_state = start_state 
     for symbol in word:
@@ -74,18 +79,69 @@ def check_dfa(word, visualize=False):
     return current_state in final_states
 
 
+# Блок с NFA (отрисовка, генерация, проверка)
+def get_epsilon_closure(nfa, states):
+    closure = set(states)
+    stack = list(states)
+    while stack:
+        state = stack.pop()
+        if 'ε' in nfa.get(state, {}):
+            for next_state in nfa[state]['ε']:
+                if next_state not in closure:
+                    closure.add(next_state)
+                    stack.append(next_state)
+    return closure
+
+def check_nfa(word, visualize=False):
+    nfa = {
+    'q0': {'ε': {'q1', 'q7'}},
+    'q1': {'a': 'q2', 'b': 'q4'},
+    'q2': {'a': 'q1', 'b': 'q3'},
+    'q4': {'a': 'q3', 'b': 'q1'},
+    'q3': {'a': 'q5', 'b': {'q6'}},
+    'q5': {'a': 'q3', 'b': 'q0'},
+    'q6': {'a': 'q0', 'b': 'q3'},
+    'q7': {'a': 'q8', 'b': 'q9', 'c': 'q11'},
+    'q8': {'b': 'q7'},
+    'q9': {'c': 'q10'},
+    'q10': {'b': 'q11', 'c': 'q8'},
+    'q11': {'b': 'q10', 'c': 'q7'}  
+    }
+    nfa_start_state = 'q0'
+    nfa_final_states = {'q7'}
+
+    if visualize:
+        visualize_automaton(nfa, nfa_start_state, nfa_final_states, "NFA")
+
+
+    current_states = get_epsilon_closure(nfa, {nfa_start_state})
+
+    for symbol in word:
+        next_states = set()
+        for state in current_states:
+            if symbol in nfa.get(state, {}):
+                transitions = nfa[state][symbol]
+                if isinstance(transitions, str):
+                    next_states.add(transitions)
+                else:
+                    next_states.update(transitions)
+        current_states = get_epsilon_closure(nfa, next_states)
+        if not current_states:
+            return False
+    return any(state in nfa_final_states for state in current_states)
+
+
 def test_equivalence(regex, alphabet, num_tests=100):
     failed_words = [] 
     for i in range(num_tests):
         word = generate_random_word(alphabet)
         regex_result = check_regex(regex, word)
         dfa_result = check_dfa(word)
-        #nfa_result = check_nfa(word) 
+        nfa_result = check_nfa(word) 
         #pka_result = check_pka(word) 
-        #if not (regex_result == dfa_result == nfa_result == pka_result):
-        if regex_result != dfa_result:
+        if not (regex_result == dfa_result == nfa_result):
             print("Ошибка в слове:", word)
-            print("Регулярка:", regex_result, "DFA:", dfa_result)
+            print("Регулярка:", regex_result, "DFA:", dfa_result, "NFA:", nfa_result)
             failed_words.append(word)   
     if failed_words == [] :
         return True
@@ -117,10 +173,12 @@ def main():
         word = input("Введите слово для тестирования: ")    
         regex_result = check_regex(regex, word)
         dfa_result = check_dfa(word)
+        nfa_result = check_nfa(word)
         print("Слово:", word)
         print("Регулярка:", regex_result)
         print("DFA:", dfa_result)
-        if regex_result == dfa_result:
+        print("NFA:", nfa_result)
+        if regex_result == dfa_result == nfa_result: 
             print("Результаты совпадают")
         else:
             print("Результаты не совпадают!")
@@ -153,10 +211,10 @@ def main():
         for word in words:
             regex_result = check_regex(regex, word)
             dfa_result = check_dfa(word, visualize=False)
-            
-            if regex_result != dfa_result:
+            nfa_result = check_nfa(word, visualize=False)
+            if not (regex_result == dfa_result == nfa_result):
                 errors.append(word)
-                print("Ошибка:", word, "- Регулярка:", regex_result, "DFA:", dfa_result)
+                print("Ошибка:", word, "- Регулярка:", regex_result, "DFA:", dfa_result, "NFA:", nfa_result)    
             #else:
                 #print(f"OK: '{word}'")
         if errors:
