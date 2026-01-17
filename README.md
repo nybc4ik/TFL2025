@@ -59,7 +59,7 @@
 1 `((aa|bb)*(ab|ba)(aa|bb)*(ab|ba))*`
 2 `(ab|(bc|cb)(bb)*(cb|bc))*`
 
-![ПКА](SFA_visualization.svg)
+![НКА](nfa_visualization.svg)
 
 Табличка
 
@@ -83,6 +83,9 @@
 2 чётная длина всего слова 
 3 хотя бы одна буква `b` в непустом слове 
 4 после `с` не может идти `а`, только `ab`
+
+![ПКА](SFA_visualization.svg)
+
 
 Табличка:
 
