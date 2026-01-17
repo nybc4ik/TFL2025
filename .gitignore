@@ -5,3 +5,5 @@ table.md
 check_table.py
 corrected_table.
 SFA.py
+DFA.py
+NFA.py
