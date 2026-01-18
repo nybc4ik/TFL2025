@@ -319,7 +319,7 @@ def check_extended_regex(word):
     )? 
     )+$
     """
-    return bool(re.fullmatch(extended_regex, word)) 
+    return bool(re.fullmatch(extended_regex, word, flags=re.X)) 
 
 
 def test_equivalence(regex, alphabet, num_tests=100):
